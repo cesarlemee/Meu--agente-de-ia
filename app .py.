@@ -1,0 +1,49 @@
+import streamlit as st
+import google.generativeai as genai
+from PIL import Image
+
+# Configuração da Página
+st.set_page_config(page_title="Visionário de Conversão Local", layout="centered")
+
+st.title("🚀 Arquiteto de Conversão Local")
+st.subheader("Transforme seu estabelecimento em um ímã de clientes")
+
+# --- LOGIN DA API ---
+# No futuro, você pode esconder isso, mas para começar, cole sua chave aqui:
+api_key = st.text_input("Insira sua API Key do Gemini:", type="password")
+
+if api_key:
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
+    # --- INPUTS ---
+    link_google = st.text_input("Cole o link do estabelecimento no Google Maps:")
+    foto_lanche = st.file_uploader("Ou envie a foto de um produto:", type=['jpg', 'png', 'jpeg'])
+
+    if st.button("Gerar Análise Estratégica"):
+        # INSTRUÇÕES DO SEU GEM (O SEGREDO DO NEGÓCIO)
+        instrucoes = """
+        Você é o Visionário de Conversão Local. Analise o link ou imagem enviado.
+        1. Se for link: Avalie falhas de SEO e Prova Social. Sugira 3 melhorias de lucro.
+        2. Se for imagem: Critique a foto (luz/ângulo). 
+        3. OBRIGATÓRIO: Descreva um prompt detalhado de 'Food Porn' para recriar esse produto de forma profissional.
+        Use linguagem direta, informal e focada em vendas.
+        """
+
+        if link_google or foto_lanche:
+            with st.spinner('O cérebro está pensando...'):
+                conteudo_para_enviar = [instrucoes]
+                if link_google: conteudo_para_enviar.append(f"Link: {link_google}")
+                if foto_lanche: 
+                    img = Image.open(foto_lanche)
+                    conteudo_para_enviar.append(img)
+                
+                response = model.generate_content(conteudo_para_enviar)
+                st.markdown("---")
+                st.markdown(response.text)
+        else:
+            st.warning("Mande um link ou uma foto, chefe!")
+
+else:
+    st.info("Aguardando a sua API Key para começar a lucrar.")
+  
